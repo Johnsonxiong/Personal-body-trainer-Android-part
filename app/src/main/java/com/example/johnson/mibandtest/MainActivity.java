@@ -27,9 +27,9 @@ public class MainActivity extends AppCompatActivity {
     BluetoothAdapter mBluetoothAdapter;  // setup the bluetooth
     BluetoothDevice MiBand2Device; // define MI Band 2 device
     BluetoothGatt mbluetoothGatt; // define MI Band bluetooth gatt to connect
-    Button StartConectButton,BatteryButton;
+    Button StartConectButton,BatteryButton, CallSheetAPIButton, BarChartButton;
 
-    TextView MiBand2Name, MiBand2HardwareAddress, MiBand2Data;
+    TextView MiBand2Name, MiBand2HardwareAddress, MiBand2BatteryData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +56,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         MiBand2Name = (TextView) findViewById(R.id.MiNameTextView);
-        MiBand2HardwareAddress = (TextView) findViewById(R.id.MiAddTextView);
-        MiBand2Data = (TextView) findViewById(R.id.MiDataTextView);
+       // MiBand2HardwareAddress = (TextView) findViewById(R.id.MiAddTextView);
+        MiBand2BatteryData = (TextView) findViewById(R.id.MiBatteryTextView);
         StartConectButton = (Button) findViewById(R.id.StartConnectbtn);
         BatteryButton = (Button) findViewById(R.id.Batterybtn);
 
@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
             for (BluetoothDevice device : pairedDevices) {
                 if(device.getName().contains("MI Band 2")){
                     //MiBand2Name.setText(device.getName());
-                    MiBand2HardwareAddress.setText(device.getAddress()); // MAC address
+                   // MiBand2HardwareAddress.setText(device.getAddress()); // MAC address
                     MiBand2Device = mBluetoothAdapter.getRemoteDevice(device.getAddress());
 
 
@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
     void getBatteryStatus() {
-        MiBand2Data.setText("...");
+        MiBand2BatteryData.setText("...");
         BluetoothGattCharacteristic bchar = mbluetoothGatt.getService(CustomBluetoothProfile.Basic.service)
                 .getCharacteristic(CustomBluetoothProfile.Basic.batteryCharacteristic);
         //if()
@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
             byte[] data = characteristic.getValue();
             //MiBand2Data.setText(Arrays.toString(data));
            // MiBand2Data.setText(Arrays.toString(()));
-            MiBand2Data.setText(String.valueOf(data[1]));
+            MiBand2BatteryData.setText(String.valueOf(data[1]));
            // Arrays.t
         }
 
@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
             super.onCharacteristicChanged(gatt, characteristic);
             Log.v("test", "onCharacteristicChanged");
             byte[] data = characteristic.getValue();
-            MiBand2Data.setText(Arrays.toString(data));
+            MiBand2BatteryData.setText(Arrays.toString(data));
         }
 
         @Override
