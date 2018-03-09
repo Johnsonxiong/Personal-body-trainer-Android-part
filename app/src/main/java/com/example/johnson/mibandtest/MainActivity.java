@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
     Button StartConectButton,BatteryButton, mCallApiButton,mBarChartButton;
 
     TextView MiBand2Name, MiBand2HardwareAddress, MiBand2BatteryData,mOutputWeeklySteps;
-
+    String resultRealTimeBattery;
 
     // Initialinize of barchart and google sheet API
     GoogleAccountCredential mCredential;
@@ -189,6 +189,7 @@ public class MainActivity extends AppCompatActivity {
         BatteryButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View view){
                 getBatteryStatus();
+                //MakeRequestTask.updateDataFromApi();
             }
         });
 
@@ -255,6 +256,7 @@ public class MainActivity extends AppCompatActivity {
             byte[] data = characteristic.getValue();
             //MiBand2Data.setText(Arrays.toString(data));
            // MiBand2Data.setText(Arrays.toString(()));
+            resultRealTimeBattery = String.valueOf(data[1]);
             MiBand2BatteryData.setText(String.valueOf(data[1]));
            // Arrays.t
         }
@@ -528,6 +530,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected List<String> doInBackground(Void... params) {
             try {
+                updateDataFromApi(); // update the google sheet
                 return getDataFromApi();
             } catch (Exception e) {
                 mLastError = e;
@@ -537,7 +540,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         /**
-         * Fetch a list of names and majors of students in a sample spreadsheet:
+         * Fetch information in a spreadsheet:
          * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
          * @return List of names and majors
          * @throws IOException
@@ -564,6 +567,37 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             return results;
+        }
+
+        /**
+         * Update battery and real-time steps in a spreadsheet:
+         * https://docs.google.com/spreadsheets/d/1zRYonLSPg7KqeckrHQfFfufqeVp73c6_IDGGRIPvhhA/edit
+         *
+         * @throws IOException
+         */
+        public void updateDataFromApi() throws IOException {
+            //  String spreadsheetId = "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"; // original google sheet ID
+            String spreadsheetId = "1zRYonLSPg7KqeckrHQfFfufqeVp73c6_IDGGRIPvhhA";   // weekly steps sheet ID
+            String range = "Sheet1!C2:D";
+            Object a1 = new Object();
+            a1 = resultRealTimeBattery;
+            Object b1 = new Object();
+           // b1 = "TEST Row 1 Column B";
+
+          /*  Object a2 = new Object();
+            a2 = "TEST Row 2 Column A";
+            Object b2 = new Object();
+            b2 = "TEST Row 2 Column B";*/
+
+            ValueRange valueRange = new ValueRange();
+            valueRange.setValues(
+                    Arrays.asList(
+                            Arrays.asList(a1, null),
+                            Arrays.asList(null, null)));
+                   // Arrays.asList(a1, b1));
+            this.mService.spreadsheets().values().update(spreadsheetId, range, valueRange)
+                    .setValueInputOption("RAW")
+                    .execute();
         }
 
 
